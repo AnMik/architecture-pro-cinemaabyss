@@ -97,10 +97,10 @@ jobs:
       - name: Build and push Proxy Service Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./src/microservices/movies/proxy/proxy_api
+          context: ./src/microservices/proxy/proxy_api
           push: true
-          tags: ${{ steps.meta-movies.outputs.tags }}
-          labels: ${{ steps.meta-movies.outputs.labels }}
+          tags: ${{ steps.meta-proxy.outputs.tags }}
+          labels: ${{ steps.meta-proxy.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -119,10 +119,10 @@ jobs:
       - name: Build and push Events Service Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./src/microservices/moviesevents/events/events-api
+          context: ./src/microservices/events/events-api
           push: true
-          tags: ${{ steps.meta-movies.outputs.tags }}
-          labels: ${{ steps.meta-movies.outputs.labels }}
+          tags: ${{ steps.meta-events.outputs.tags }}
+          labels: ${{ steps.meta-events.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
