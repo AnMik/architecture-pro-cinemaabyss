@@ -97,7 +97,8 @@ jobs:
       - name: Build and push Proxy Service Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./src/microservices/proxy/proxy_api/proxy_api
+          context: ./src/microservices/proxy/proxy_api
+          file: ./proxy_api/Dockerfile
           push: true
           tags: ${{ steps.meta-proxy.outputs.tags }}
           labels: ${{ steps.meta-proxy.outputs.labels }}
@@ -119,7 +120,8 @@ jobs:
       - name: Build and push Events Service Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./src/microservices/events/events-api/events-api
+          context: ./src/microservices/events/events-api
+          file: ./events-api/Dockerfile
           push: true
           tags: ${{ steps.meta-events.outputs.tags }}
           labels: ${{ steps.meta-events.outputs.labels }}
