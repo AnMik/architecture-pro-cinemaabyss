@@ -5,7 +5,9 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+
+
+### [Схема контейнеров TOBE](Schemas/C4_Containers%20-%20cinemaabyss%20-%20tobe.puml)
 
 
 ## Задание 2
@@ -13,9 +15,9 @@
 ### 1. Proxy
 Команда КиноБездны уже выделила сервис метаданных о фильмах movies и вам необходимо реализовать бесшовный переход с применением паттерна Strangler Fig в части реализации прокси-сервиса (API Gateway), с помощью которого можно будет постепенно переключать траффик, используя фиче-флаг.
 
-
 Реализуйте сервис на любом языке программирования в ./src/microservices/proxy.
 Конфигурация для запуска сервиса через docker-compose уже добавлена
+
 ```yaml
   proxy-service:
     build:
@@ -47,6 +49,14 @@
    ```
 - Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
 
+### Файлы прокси-сервиса:
+
+[Dockerfile](src/microservices/proxy/proxy_api/proxy_api/Dockerfile)
+
+[Main](src/microservices/proxy/proxy_api/proxy_api/Program.cs)
+
+[Balancer](src/microservices/proxy/proxy_api/proxy_api/WeightedRandomLoadBalancingPolicy.cs)
+
 ### 2. Kafka
  Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
 
@@ -58,6 +68,22 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+
+### Файлы ивент-сервис:
+
+[Dockerfile](src/microservices/events/events-api/events-api/Dockerfile)
+
+[Main](src/microservices/events/events-api/events-api/Program.cs)
+
+[KafkaSender](src/microservices/events/events-api/events-api/KafkaSender.cs)
+
+[Requests](src/microservices/events/events-api/events-api/Request.cs)
+
+[Responses](src/microservices/events/events-api/events-api/Response.cs)
+
+![Результаты тестов](tests/postman/reports/tests_ok.jpg)
+
+![Топики кафки](tests/postman/reports/kafka%20topics.jpg)
 
 
 ## Задание 3
