@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: monolith-service-dr
+  namespace: cinemaabyss
+spec:
+  host: monolith
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: 8080
+      connectionPool:
+        http:
+          http2MaxRequests: 500
+          maxRequestsPerConnection: 5
+      outlierDetection:
+        consecutive5xxErrors: 3
+        interval: 2m
+        baseEjectionTime: 30s
+        maxEjectionPercent: 50
