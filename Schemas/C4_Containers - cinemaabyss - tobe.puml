@@ -1,0 +1,65 @@
+@startuml containers - warmhouse - TO BE
+!include Common/C4_Container.puml
+
+title Диаграмма контейнеров для системы Кинобездна TO BE
+
+Container(api_gateway, "ApiGateway", "node.js", "Распределение запросов и балансировка.")
+ContainerDb(media_db, "S3", "S3", "Медиахранилище.")
+ContainerQueue(services_events, "MessageQueue", "kafka", "Персистентная очередь аналитики и событий сервисов.")
+ContainerQueue_Ext(recommend_events, "MessageQueue", "rabbitmq", "Очередь событий обнвления рекомендаций.")
+Container_Ext(payment_system_ext, "WebApplication", "Внешняя платежная система.")
+
+Container_Boundary(cinemaabyss_domain, "Легаси-монолит") {
+    Container(monolith_app, "WebApplication", "go", "Монолит управления пользователями, фильмами и платежами.")
+    ContainerDb(cinemaabyss_db, "Database", "postgresql", "Основное хранилище приложения.")
+    BiRel(monolith_app, cinemaabyss_db, "Сохранение/загрузка", "TCP/IP")
+    BiRel(monolith_app, payment_system_ext, "Отправка данных об оплате/возврате", "JSON/HTTPS")
+    BiRel(monolith_app, api_gateway, "Данные о пользователях, фильмах, платежах.", "JSON/HTTPS")
+    BiRel(monolith_app, media_db, "Медиафайлы.", "JSON/HTTPS")
+    BiRel(monolith_app, recommend_events, "Медиафайлы.", "TCP/IP")
+}
+
+Container_Boundary(metadata_domain, "Домен метаданных") {
+    Container(metadata_service, "ApiApplication", "dotnet", "Микросервис управления метаданными фильмов.")
+    ContainerDb(metadata_db, "Database", "postgresql", "Хранилище метаданных фильмов.")
+    BiRel(metadata_service, metadata_db, "Сохранение/загрузка", "TCP/IP")
+    BiRel(api_gateway, metadata_service, "Данные о метаданных фильмов.", "JSON/HTTPS")
+    Rel(metadata_service, services_events, "События метаданных.", "TCP/IP")
+    BiRel(metadata_service, media_db, "Медиафайлы.", "JSON/HTTPS")
+}
+
+Container_Boundary(user_domain, "Домен пользователей") {
+    Container(user_service, "ApiApplication", "dotnet", "Микросервис управления пользователями и подписками.")
+    ContainerDb(user_db, "Database", "postgresql", "Хранилище данных пользователей.")
+    BiRel(user_service, user_db, "Сохранение/загрузка", "TCP/IP")
+    BiRel(api_gateway, user_service, "Данные о пользователях.", "JSON/HTTPS")
+    BiRel(user_service, services_events, "События пользователей.", "TCP/IP")
+}
+
+Container_Boundary(payment_domain, "Домен платежей") {
+    Container(payment_service, "ApiApplication", "dotnet", "Микросервис управления платежами.")
+    ContainerDb(payment_db, "Database", "postgresql", "Хранилище платежных данных.")
+    BiRel(payment_service, payment_db, "Сохранение/загрузка", "TCP/IP")
+    Rel(payment_service, payment_system_ext, "Отправка данных об оплате/возврате", "JSON/HTTPS")
+    BiRel(api_gateway, payment_service, "Данные о платежах и возвратах.", "JSON/HTTPS")
+    Rel(payment_service, services_events, "События платежей.", "TCP/IP")
+}
+
+Container_Boundary(streaming_domain, "Домен стриминга") {
+    Container(streaming_service, "ApiApplication", "dotnet", "Микросервис стриминга.")
+    ContainerDb(media_cache_db, "Disctibuted cache", "Redis", "Медиахранилище.")
+    BiRel(api_gateway, streaming_service, "Стриминг фильмов.", "JSON/HTTPS")
+    Rel(streaming_service, services_events, "События стриминга.", "TCP/IP")
+    Rel(media_db, streaming_service, "Медиафайлы.", "JSON/HTTPS")
+    BiRel(streaming_service, media_cache_db, "Медиафайлы.", "TCP/IP")
+}
+
+Container_Boundary(device_domain, "Домен рекомендаций") {
+    Container(recommend_service, "ApiApplication", "go", "Микросервис рекомендаций.")
+    ContainerDb(recommend_db, "Database", "postgresql", "Хранилище рекомендательных данных.")
+    BiRel(recommend_service, recommend_db, "Сохранение/загрузка", "TCP/IP")
+    BiRel(api_gateway, recommend_service, "Показ рекомендаций.", "JSON/HTTPS")
+    BiRel(recommend_service, recommend_events, "События рекомендаций.", "TCP/IP")
+}
+
+@enduml
